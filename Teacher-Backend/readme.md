@@ -1,9 +1,3 @@
-Fontend Repo for this project at
-
-https://github.com/project-teacher-student/Teacher-Frontend 
----
-( contributed by https://github.com/SUBROTOKOIRY , https://github.com/HetarthJain )
-
 ## Screenshots
 
 ![image](images/login.png)
@@ -81,6 +75,12 @@ Reminder above commands are first time setup, for subsequent runs you can use th
 docker start ollama
 docker exec -it ollama ollama run llama3.1
 
+```
+
+then run ngrok 
+
+```
+ngrok http --domain=pet-muskox-honestly.ngrok-free.app 5000
 ```
 
 
