@@ -107,6 +107,7 @@ Students can use the tool to focus on specific topics and test their knowledge e
 ### Frontend Repository
 - Repository: [Teacher-Frontend](https://github.com/project-teacher-student/Teacher-Frontend)
 - Contributors:
+- - [Avinash Reddy C](https://github.com/avinash84319)
   - [Subroto Koiry](https://github.com/SUBROTOKOIRY)
   - [Hetarth Jain](https://github.com/HetarthJain)
   - [Dixith S Naik](https://github.com/dixithsnaik)
@@ -146,11 +147,6 @@ Students can use the tool to focus on specific topics and test their knowledge e
 
 ---
 
-## License
-
-This project is licensed under the MIT License.
-
----
 
 ## Contribution Guidelines
 
