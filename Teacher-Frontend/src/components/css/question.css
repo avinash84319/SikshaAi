@@ -1,0 +1,79 @@
+.main-card{
+    display: flex;
+    flex-direction:row;
+    align-items: center;
+    justify-content: space-around;
+    background-color:#fff;
+    width: 900px;
+    /* border: 2px solid rgba(48, 242, 171, 1); */
+    box-shadow: 0 0 15px #94A7BF;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 20px;
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+}
+
+.subjective-main-card{
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.subjective-main-card-question{
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.subjective-main-card-answer{
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 10px;
+}
+
+.customizer{
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.customizer-select-type{
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.question-card-footer{
+    display:flex;
+    flex-direction:column;
+    justify-content: space-between;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 0 10px rgba(48, 242, 171, 0.5);
+}
+
+.main-mcq-card, .main-checkbox-card, .main-tf-card{
+    background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	padding: 20px;
+	margin: 10px;
+}
+form {
+	display: flex;
+	flex-direction: column;
+}
+
+input[type="text"],
+textarea {
+	width: 100%;
+	padding: 10px;
+}
