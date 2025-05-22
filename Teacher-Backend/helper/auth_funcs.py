@@ -1,7 +1,7 @@
 from flask import jsonify
 import firebase_admin
 from firebase_admin import credentials, auth
-from database import *
+from database import get_user, add_user, get_user_by_email, add_password, get_password
 import uuid
 import bcrypt
 import os

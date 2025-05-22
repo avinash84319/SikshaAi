@@ -10,17 +10,14 @@ function Classes() {
   const navigate = useNavigate()
   const fileDetails = useSelector((state) => state.sections)
 
+  const VITEHOST = import.meta.env.VITE_HOST;
+  const user_id = localStorage.getItem("user_id");
   // Fetching class data from backend using the user_id
   useEffect(() => {
     console.log(fileDetails.sections)
     const fetchClasses = async () => {
-      const user_id =  fileDetails.user_id || '12345678'
-
       try {
-        const response = await axios.get(
-          `${
-            import.meta.env.VITE_HOST
-          }/api/getTeachersClasses?user_id=${user_id}`,
+        const response = await axios.get(`${VITEHOST}/api/getTeachersClasses?user_id=${user_id}`,
           {
             headers: {
               'ngrok-skip-browser-warning': '69420',

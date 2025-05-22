@@ -21,7 +21,7 @@ function MessageList() {
     <div className="flex flex-col ml-5 w-[65%] max-md:ml-0 max-md:w-full">
       <div className="flex flex-col grow pt-12 pb-96 w-full bg-indigo-50 max-md:pb-24">
         <div className="flex flex-col w-full">
-          {messages.map((message, index) => (
+          {messages?.map((message, index) => (
             <div
               key={index}
               className="flex overflow-hidden gap-5 justify-between items-start px-6 pt-1 pb-3.5 w-full bg-indigo-50 border-b-2 border-slate-50 max-md:px-5"

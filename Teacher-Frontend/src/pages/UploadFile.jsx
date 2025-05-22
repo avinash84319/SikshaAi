@@ -42,6 +42,7 @@ function UploadFile() {
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0]
+    console.log("FILE_NAME:", selectedFile.name.split(".")[0]);
     setPdfName(selectedFile.name.split('.')[0])
     if (selectedFile && selectedFile.type === 'application/pdf') {
       const reader = new FileReader()

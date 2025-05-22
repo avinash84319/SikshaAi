@@ -1,13 +1,10 @@
-# Import necessary modules and packages
-from flask import Flask, request, jsonify
-import logging  # For logging errors
-import requests  # For HTTP requests
-from flask_cors import CORS, cross_origin  # For enabling CORS
-import base64  # For encoding/decoding data
-from helper.model import check_model  # For checking model readiness
+from flask import Flask
+import logging  
+from flask_cors import CORS 
+from helper.model import check_model
 from controllers import greet, materials, auth, sections, classes, students, tests,assignment  # Controller functions for routing
 from database import create_db,  seed_fake_data, is_database_empty  
-from helper.gcpUpload import check_bucket  # For checking GCP bucket readiness
+# from helper.gcpUpload import check_bucket  # For checking GCP bucket readiness
 from google.cloud import storage
 from google.oauth2 import service_account
 

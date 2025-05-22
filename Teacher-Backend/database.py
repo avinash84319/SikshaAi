@@ -1,12 +1,11 @@
 import mysql.connector
 import os
-from dotenv import load_dotenv, dotenv_values
+from dotenv import load_dotenv
 import json
 import bcrypt
 from faker import Faker
 import random
 import uuid
-from datetime import datetime, timedelta
 import logging
 
 load_dotenv()
@@ -557,7 +556,7 @@ def fetch_files(user_id):
         return False
 
 
-def fetch_section_details(userid,sectionid):
+def fetch_section_details1(userid,sectionid):
     try:
         print(sectionid)
 

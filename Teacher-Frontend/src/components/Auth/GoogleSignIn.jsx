@@ -32,8 +32,12 @@ const GoogleSignIn = () => {
         window.localStorage.setItem('photoUrl', response.picture)
         window.localStorage.setItem('token', response.token)
         window.localStorage.setItem('user_id', response.user_id)
+        console.log("RSPONSE --------------FIREBASE IS ON", response.user_id);
+        
         // Redirect to profile page
-        navigate('/profile')
+        navigate('/home')
+
+        
         
       } else {
         console.error('Authentication failed')

@@ -1,5 +1,4 @@
-import logging
-from flask import request,jsonify
+from flask import request
 from helper.auth_funcs import (
     google_auth,
     profile,
