@@ -21,11 +21,12 @@ def pdfupload():
         pdfid=str(data['pdf_id'])
         pdf=data["pdf_content"]                                     #extracting the pdf
 
-        print("SERVER:"+pdf_name+" "+userid+" "+pdfid)
+        print("SERVER: PDF_NAME:"+pdf_name+" USERID:"+userid+" PDFID:"+pdfid)
         if userid=="" or pdfid=="" or pdf=="" or pdf_name=="":
             raise Exception("Please provide all the details")
 
         pdf = base64.b64decode(pdf)
+        os.makedirs('./user_files', exist_ok=True)
         with open(f'./user_files/{userid+"-"+pdfid}.pdf', 'wb') as f: 
             f.write(pdf)
                  
@@ -115,6 +116,7 @@ def materials_class():
         try:
             result=True
             data = request.get_json()
+            print(data)
 
             user_id = str(data['teacherId'])
             class_id = str(data['classId'])

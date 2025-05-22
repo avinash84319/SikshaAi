@@ -1,7 +1,10 @@
 from google.cloud import storage
 from pdfminer.high_level import extract_text
+from google.oauth2 import service_account
 import io
-
+gcs_credentials = service_account.Credentials.from_service_account_file(
+    "gkey.json"
+)
 
 def upload_blob(path,gcp_path):
     """Uploads a file to the bucket."""
@@ -12,7 +15,7 @@ def upload_blob(path,gcp_path):
     # The ID of your GCS object
     destination_blob_name = gcp_path
 
-    storage_client = storage.Client()
+    storage_client = storage.Client(credentials=gcs_credentials)
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 

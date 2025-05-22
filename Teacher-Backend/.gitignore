@@ -5,3 +5,6 @@ __pycache__/
 *json
 data
 gkey.json
+.venv
+.python-version
+compose.yml

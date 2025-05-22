@@ -2,6 +2,12 @@ import mysql.connector
 import os
 from dotenv import load_dotenv, dotenv_values
 import json
+import bcrypt
+from faker import Faker
+import random
+import uuid
+from datetime import datetime, timedelta
+import logging
 
 load_dotenv()
 
@@ -18,36 +24,368 @@ mydb.autocommit = True
 
 pool = mydb.cursor(buffered=True)
 
-def create_db():
+# def create_db():
 
+#     database = os.getenv("DB_NAME")
+
+#     try:
+#         pool.execute("CREATE DATABASE IF NOT EXISTS "+database)
+#         pool.execute("USE "+database)
+#         pool.execute("CREATE TABLE IF NOT EXISTS users (id INT, name VARCHAR(255), email VARCHAR(255))")
+#         pool.execute("CREATE TABLE IF NOT EXISTS passwords (id INT AUTO_INCREMENT PRIMARY KEY, user_id varchar(255), password VARCHAR(255))")
+#         pool.execute("CREATE TABLE IF NOT EXISTS sections (userid VARCHAR(255),sectionid VARCHAR(255) PRIMARY KEY, name VARCHAR(255), mcq TEXT, mc TEXT, ftb TEXT, tf TEXT, mtf TEXT, sub TEXT, pag TEXT,questions TEXT,easy varchar(255),medium varchar(255),hard varchar(255),easyMarks varchar(255),mediumMarks varchar(255),hardMarks varchar(255))")
+#         pool.execute("CREATE TABLE IF NOT EXISTS userpdfs (userid varchar(255), pdfid VARCHAR(255), pdfname VARCHAR(255))")
+#         pool.execute("CREATE TABLE IF NOT EXISTS pdfpaths (userid varchar(255),pdfid VARCHAR(255), path TEXT)")
+#         pool.execute("CREATE TABLE IF NOT EXISTS classes (id INT AUTO_INCREMENT PRIMARY KEY, user_id VARCHAR(255), class_name VARCHAR(255), description TEXT)")
+#         pool.execute("CREATE TABLE IF NOT EXISTS students (id INT AUTO_INCREMENT PRIMARY KEY, student_name VARCHAR(255), class_id varchar(255))")
+#         pool.execute("CREATE TABLE IF NOT EXISTS studentAnalytics (id INT AUTO_INCREMENT PRIMARY KEY, studentid varchar(255), analytics TEXT)")
+#         pool.execute("CREATE TABLE IF NOT EXISTS sectionjson (userid varchar(255),sectionid TEXT,sectionjson TEXT)")
+#         pool.execute("CREATE TABLE IF NOT EXISTS tests (id INT AUTO_INCREMENT PRIMARY KEY, user_id varchar(255), student_id varchar(255), pdf_id TEXT, test_name VARCHAR(255), description TEXT)")
+#         pool.execute("CREATE TABLE IF NOT EXISTS testsections (id INT AUTO_INCREMENT PRIMARY KEY, test_id varchar(255), section_id TEXT, sectiondata TEXT)")
+#         pool.execute("CREATE TABLE IF NOT EXISTS questions (id INT AUTO_INCREMENT PRIMARY KEY, test_id varchar(255),section_id TEXT,question_json TEXT)")
+#         pool.execute("CREATE TABLE IF NOT EXISTS materials (id INT AUTO_INCREMENT PRIMARY KEY, user_id varchar(255), student_id TEXT, file_url TEXT)")
+#         pool.execute("CREATE TABLE IF NOT EXISTS classMaterials (id INT AUTO_INCREMENT PRIMARY KEY,user_id TEXT, class_id varchar(255), file_url TEXT)")
+#         pool.execute("CREATE TABLE IF NOT EXISTS studentassignements (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255), description TEXT, type VARCHAR(255), due_date DATE, student_id varchar(255))")
+#         pool.execute("CREATE TABLE IF NOT EXISTS classassignments (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255), description TEXT, type VARCHAR(255), due_date DATE,user_id TEXT, class_id varchar(255), student_id varchar(255))")
+
+#         # other ui tables
+#         return True
+
+#     except Exception as e:
+#         print(e)
+#         return e
+
+
+# def seed_fake_data():
+#     fake = Faker('en_IN')
+#     indian_first_names = ["Aarav", "Vivaan", "Aditya", "Krishna", "Anaya", "Diya", "Ishita", "Meera", "Rohan", "Kabir"]
+#     indian_last_names = ["Sharma", "Verma", "Singh", "Patel", "Nair", "Iyer", "Reddy", "Chowdhury", "Mehta", "Kapoor"]
+#     school_subjects = ["Mathematics", "Science", "English", "Social Studies", "Hindi", "Computer Science"]
+
+#     class_names = ["Class 6A", "Class 7B", "Class 8C", "Class 9A", "Class 10B"]
+
+#     try:
+#         for teacher_id in range(1, 4):  # 3 teachers
+#             # Create teacher
+#             teacher_name = f"{random.choice(indian_first_names)} {random.choice(indian_last_names)}"
+#             email = f"{teacher_name.lower().replace(' ', '.')}@schooldemo.in"
+#             pool.execute("INSERT INTO users (id, name, email) VALUES (%s, %s, %s)", (teacher_id, teacher_name, email))
+
+#             # Password
+#             password = fake.password(length=10)
+#             pool.execute("INSERT INTO passwords (user_id, password) VALUES (%s, %s)", (str(teacher_id), password))
+
+#             # 2 classes per teacher
+#             for _ in range(2):
+#                 class_name = random.choice(class_names)
+#                 class_description = f"{class_name} - Covers subjects like {random.sample(school_subjects, 2)}"
+#                 pool.execute("INSERT INTO classes (user_id, class_name, description) VALUES (%s, %s, %s)",
+#                              (str(teacher_id), class_name, class_description))
+
+#                 pool.execute("SELECT LAST_INSERT_ID()")
+#                 class_id = pool.fetchone()[0]
+
+#                 # Add 5–7 students per class
+#                 for _ in range(random.randint(5, 7)):
+#                     student_name = f"{random.choice(indian_first_names)} {random.choice(indian_last_names)}"
+#                     pool.execute("INSERT INTO students (student_name, class_id) VALUES (%s, %s)", (student_name, class_id))
+
+#                     pool.execute("SELECT LAST_INSERT_ID()")
+#                     student_id = pool.fetchone()[0]
+
+#                     # Add dummy analytics
+#                     analytics_data = {
+#                         "scores": {
+#                             "Math": random.randint(40, 100),
+#                             "English": random.randint(40, 100),
+#                             "Science": random.randint(40, 100)
+#                         },
+#                         "attendance": f"{random.randint(75, 100)}%",
+#                         "remarks": fake.sentence(nb_words=8)
+#                     }
+#                     pool.execute("INSERT INTO studentAnalytics (studentid, analytics) VALUES (%s, %s)",
+#                                  (student_id, json.dumps(analytics_data)))
+
+#     except Exception as e:
+#         print("Error while seeding realistic fake data:", e)
+# ------------------------------------------------------------------------
+
+def create_db():
     database = os.getenv("DB_NAME")
 
     try:
-        pool.execute("CREATE DATABASE IF NOT EXISTS "+database)
-        pool.execute("USE "+database)
-        pool.execute("CREATE TABLE IF NOT EXISTS users (id INT, name VARCHAR(255), email VARCHAR(255))")
-        pool.execute("CREATE TABLE IF NOT EXISTS passwords (id INT AUTO_INCREMENT PRIMARY KEY, user_id varchar(255), password VARCHAR(255))")
-        pool.execute("CREATE TABLE IF NOT EXISTS sections (userid VARCHAR(255),sectionid VARCHAR(255) PRIMARY KEY, name VARCHAR(255), mcq TEXT, mc TEXT, ftb TEXT, tf TEXT, mtf TEXT, sub TEXT, pag TEXT,questions TEXT,easy varchar(255),medium varchar(255),hard varchar(255),easyMarks varchar(255),mediumMarks varchar(255),hardMarks varchar(255))")
-        pool.execute("CREATE TABLE IF NOT EXISTS userpdfs (userid varchar(255), pdfid VARCHAR(255), pdfname VARCHAR(255))")
-        pool.execute("CREATE TABLE IF NOT EXISTS pdfpaths (userid varchar(255),pdfid VARCHAR(255), path TEXT)")
-        pool.execute("CREATE TABLE IF NOT EXISTS classes (id INT AUTO_INCREMENT PRIMARY KEY, user_id VARCHAR(255), class_name VARCHAR(255), description TEXT)")
-        pool.execute("CREATE TABLE IF NOT EXISTS students (id INT AUTO_INCREMENT PRIMARY KEY, student_name VARCHAR(255), class_id varchar(255))")
-        pool.execute("CREATE TABLE IF NOT EXISTS studentAnalytics (id INT AUTO_INCREMENT PRIMARY KEY, studentid varchar(255), analytics TEXT)")
-        pool.execute("CREATE TABLE IF NOT EXISTS sectionjson (userid varchar(255),sectionid TEXT,sectionjson TEXT)")
-        pool.execute("CREATE TABLE IF NOT EXISTS tests (id INT AUTO_INCREMENT PRIMARY KEY, user_id varchar(255), student_id varchar(255), pdf_id TEXT, test_name VARCHAR(255), description TEXT)")
-        pool.execute("CREATE TABLE IF NOT EXISTS testsections (id INT AUTO_INCREMENT PRIMARY KEY, test_id varchar(255), section_id TEXT, sectiondata TEXT)")
-        pool.execute("CREATE TABLE IF NOT EXISTS questions (id INT AUTO_INCREMENT PRIMARY KEY, test_id varchar(255),section_id TEXT,question_json TEXT)")
-        pool.execute("CREATE TABLE IF NOT EXISTS materials (id INT AUTO_INCREMENT PRIMARY KEY, user_id varchar(255), student_id TEXT, file_url TEXT)")
-        pool.execute("CREATE TABLE IF NOT EXISTS classMaterials (id INT AUTO_INCREMENT PRIMARY KEY,user_id TEXT, class_id varchar(255), file_url TEXT)")
-        pool.execute("CREATE TABLE IF NOT EXISTS studentassignements (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255), description TEXT, type VARCHAR(255), due_date DATE, student_id varchar(255))")
-        pool.execute("CREATE TABLE IF NOT EXISTS classassignments (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255), description TEXT, type VARCHAR(255), due_date DATE,user_id TEXT, class_id varchar(255), student_id varchar(255))")
+        pool.execute("CREATE DATABASE IF NOT EXISTS " + database)
+        pool.execute("USE " + database)
 
-        # other ui tables
+        # Change id from INT to VARCHAR(255)
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS users (id VARCHAR(255), name VARCHAR(255), email VARCHAR(255), user_type VARCHAR(50))"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS passwords (id INT AUTO_INCREMENT PRIMARY KEY, user_id VARCHAR(255), password VARCHAR(255))"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS sections (userid VARCHAR(255),sectionid VARCHAR(255) PRIMARY KEY, name VARCHAR(255), mcq TEXT, mc TEXT, ftb TEXT, tf TEXT, mtf TEXT, sub TEXT, pag TEXT,questions TEXT,easy varchar(255),medium varchar(255),hard varchar(255),easyMarks varchar(255),mediumMarks varchar(255),hardMarks varchar(255))"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS userpdfs (userid VARCHAR(255), pdfid VARCHAR(255), pdfname VARCHAR(255))"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS pdfpaths (userid VARCHAR(255), pdfid VARCHAR(255), path TEXT)"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS classes (id INT AUTO_INCREMENT PRIMARY KEY, user_id VARCHAR(255), class_name VARCHAR(255), description TEXT)"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS students (id INT AUTO_INCREMENT PRIMARY KEY, student_name VARCHAR(255), class_id VARCHAR(255))"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS studentAnalytics (id INT AUTO_INCREMENT PRIMARY KEY, studentid VARCHAR(255), analytics TEXT)"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS sectionjson (userid VARCHAR(255), sectionid TEXT, sectionjson TEXT)"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS tests (id INT AUTO_INCREMENT PRIMARY KEY, user_id VARCHAR(255), student_id VARCHAR(255), pdf_id TEXT, test_name VARCHAR(255), description TEXT)"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS testsections (id INT AUTO_INCREMENT PRIMARY KEY, test_id VARCHAR(255), section_id TEXT, sectiondata TEXT)"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS questions (id INT AUTO_INCREMENT PRIMARY KEY, test_id VARCHAR(255), section_id TEXT, question_json TEXT)"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS materials (id INT AUTO_INCREMENT PRIMARY KEY, user_id VARCHAR(255), student_id TEXT, file_url TEXT)"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS classMaterials (id INT AUTO_INCREMENT PRIMARY KEY, user_id TEXT, class_id VARCHAR(255), file_url TEXT)"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS studentassignements (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255), description TEXT, type VARCHAR(255), due_date DATE, student_id VARCHAR(255))"
+        )
+        pool.execute(
+            "CREATE TABLE IF NOT EXISTS classassignments (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255), description TEXT, type VARCHAR(255), due_date DATE, user_id TEXT, class_id VARCHAR(255), student_id VARCHAR(255))"
+        )
+
         return True
-
     except Exception as e:
         print(e)
         return e
+
+def seed_fake_data1():
+    fake = Faker("en_IN")
+    indian_first_names = [
+        "Aarav",
+        "Vivaan",
+        "Aditya",
+        "Krishna",
+        "Anaya",
+        "Diya",
+        "Ishita",
+        "Meera",
+        "Rohan",
+        "Kabir",
+    ]
+    indian_last_names = [
+        "Sharma",
+        "Verma",
+        "Singh",
+        "Patel",
+        "Nair",
+        "Iyer",
+        "Reddy",
+        "Chowdhury",
+        "Mehta",
+        "Kapoor",
+    ]
+    school_subjects = [
+        "Mathematics",
+        "Science",
+        "English",
+        "Social Studies",
+        "Hindi",
+        "Computer Science",
+    ]
+    class_names = ["Class 6A", "Class 7B", "Class 8C", "Class 9A", "Class 10B"]
+
+    try:
+        for _ in range(3):  # 3 teachers
+            teacher_id = str(uuid.uuid4())  # UUID instead of int
+            teacher_name = f"{random.choice(indian_first_names)} {random.choice(indian_last_names)}"
+            email = f"{teacher_name.lower().replace(' ', '.')}@schooldemo.in"
+
+            pool.execute(
+                "INSERT INTO users (id, name, email) VALUES (%s, %s, %s)",
+                (teacher_id, teacher_name, email),
+            )
+
+            password = fake.password(length=10)
+            print("\nFAKE PWDS------------------------------", password,"\n")
+            hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            pool.execute(
+                "INSERT INTO passwords (user_id, password) VALUES (%s, %s)",
+                (teacher_id, hashed.decode("utf-8")),
+            )
+
+            for _ in range(2):  # 2 classes per teacher
+                class_name = random.choice(class_names)
+                class_description = f"{class_name} - Covers subjects like {random.sample(school_subjects, 2)}"
+                pool.execute(
+                    "INSERT INTO classes (user_id, class_name, description) VALUES (%s, %s, %s)",
+                    (teacher_id, class_name, class_description),
+                )
+
+                pool.execute("SELECT LAST_INSERT_ID()")
+                class_id = pool.fetchone()[0]
+
+                for _ in range(random.randint(5, 7)):  # 5–7 students
+                    student_name = f"{random.choice(indian_first_names)} {random.choice(indian_last_names)}"
+                    pool.execute(
+                        "INSERT INTO students (student_name, class_id) VALUES (%s, %s)",
+                        (student_name, class_id),
+                    )
+
+                    pool.execute("SELECT LAST_INSERT_ID()")
+                    student_id = pool.fetchone()[0]
+
+                    analytics_data = {
+                        "scores": {
+                            "Math": random.randint(40, 100),
+                            "English": random.randint(40, 100),
+                            "Science": random.randint(40, 100),
+                        },
+                        "attendance": f"{random.randint(75, 100)}%",
+                        "remarks": fake.sentence(nb_words=8),
+                    }
+                    pool.execute(
+                        "INSERT INTO studentAnalytics (studentid, analytics) VALUES (%s, %s)",
+                        (student_id, json.dumps(analytics_data)),
+                    )
+
+    except Exception as e:
+        print("Error while seeding realistic fake data:", e)
+
+
+def seed_fake_data():
+    fake = Faker("en_IN")
+    indian_first_names = [
+        "Aarav",
+        "Vivaan",
+        "Aditya",
+        "Krishna",
+        "Anaya",
+        "Diya",
+        "Ishita",
+        "Meera",
+        "Rohan",
+        "Kabir",
+    ]
+    indian_last_names = [
+        "Sharma",
+        "Verma",
+        "Singh",
+        "Patel",
+        "Nair",
+        "Iyer",
+        "Reddy",
+        "Chowdhury",
+        "Mehta",
+        "Kapoor",
+    ]
+    school_subjects = [
+        "Mathematics",
+        "Science",
+        "English",
+        "Social Studies",
+        "Hindi",
+        "Computer Science",
+    ]
+    class_names = ["Class 6A", "Class 7B", "Class 8C", "Class 9A", "Class 10B"]
+
+    try:
+        for _ in range(3):  # 3 teachers
+            teacher_id = str(uuid.uuid4())
+            teacher_name = f"{random.choice(indian_first_names)} {random.choice(indian_last_names)}"
+            email = f"{teacher_name.lower().replace(' ', '.')}@schooldemo.in"
+
+            # Insert teacher into users table
+            pool.execute(
+                "INSERT INTO users (id, name, email, user_type) VALUES (%s, %s, %s, %s)",
+                (teacher_id, teacher_name, email, "teacher"),
+            )
+
+            # Insert password
+            password = fake.password(length=10)
+            print("\nFAKE PWDS------------------------------", password, "\n")
+            hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+            pool.execute(
+                "INSERT INTO passwords (user_id, password) VALUES (%s, %s)",
+                (teacher_id, hashed.decode("utf-8")),
+            )
+
+            for _ in range(2):  # 2 classes per teacher
+                class_name = random.choice(class_names)
+                class_description = f"{class_name} - Covers subjects like {random.sample(school_subjects, 2)}"
+                pool.execute(
+                    "INSERT INTO classes (user_id, class_name, description) VALUES (%s, %s, %s)",
+                    (teacher_id, class_name, class_description),
+                )
+
+                pool.execute("SELECT LAST_INSERT_ID()")
+                class_id = pool.fetchone()[0]
+
+                for _ in range(random.randint(5, 7)):  # 5–7 students
+                    student_id = str(uuid.uuid4())
+                    student_name = f"{random.choice(indian_first_names)} {random.choice(indian_last_names)}"
+                    student_email = (
+                        f"{student_name.lower().replace(' ', '.')}@studentdemo.in"
+                    )
+
+                    # Insert student into users table
+                    pool.execute(
+                        "INSERT INTO users (id, name, email, user_type) VALUES (%s, %s, %s, %s)",
+                        (student_id, student_name, student_email, "student"),
+                    )
+
+                    # Insert into students table
+                    pool.execute(
+                        "INSERT INTO students (student_name, class_id) VALUES (%s, %s)",
+                        (student_name, class_id),
+                    )
+
+                    pool.execute("SELECT LAST_INSERT_ID()")
+                    sid = pool.fetchone()[0]
+
+                    analytics_data = {
+                        "scores": {
+                            "Math": random.randint(40, 100),
+                            "English": random.randint(40, 100),
+                            "Science": random.randint(40, 100),
+                        },
+                        "attendance": f"{random.randint(75, 100)}%",
+                        "remarks": fake.sentence(nb_words=8),
+                    }
+                    pool.execute(
+                        "INSERT INTO studentAnalytics (studentid, analytics) VALUES (%s, %s)",
+                        (sid, json.dumps(analytics_data)),
+                    )
+
+    except Exception as e:
+        print("Error while seeding realistic fake data:", e)
+
+
+# ------------------------------------------------------------------------
+
+def is_database_empty():
+    try:
+        # We'll check if the `users` table is empty as a proxy for DB initialization
+        pool.execute("SELECT COUNT(*) FROM users")
+        (count,) = pool.fetchone()
+        logging.info(f"Count of users: {count}")
+        return count == 0
+    except Exception as e:
+        print(f"Error checking if database is empty: {e}")
+        return False
 
 
 def store_pdf_path(userid,pdf_id, pdf_path):
@@ -126,6 +464,17 @@ def store_section_info(userid,id,data):
     
     return True
 
+# ------------------------------------------------------------------------
+def get_user_by_email(email):
+    try:
+        pool.execute("SELECT * FROM users WHERE email = %s", (email,))
+        
+        return pool.fetchone()
+
+    except Exception as e:
+        print(e)
+        return False
+
 def get_user(id):
     try:
         pool.execute("SELECT * FROM users WHERE id = %s", (id,))
@@ -136,7 +485,6 @@ def get_user(id):
         print(e)
         return False
 
-
 def add_user(id,name, email):
     try:
         pool.execute("INSERT into users (id,name, email) VALUES (%s,%s,%s)", (id,name, email))
@@ -146,6 +494,24 @@ def add_user(id,name, email):
 
     return True
 
+def add_password(user_id, hashed_pwd):
+    try:
+        pool.execute(
+            "INSERT INTO passwords (user_id, password) VALUES (%s, %s)",
+            (user_id, hashed_pwd),
+        )
+    except Exception as e:
+        print(f"Error saving password: {e}")
+        raise
+
+def get_password(user_id):
+    try:
+        pool.execute("SELECT password FROM passwords WHERE user_id = %s", (user_id,))
+        return pool.fetchone()
+    except Exception as e:
+        print(e)
+        return None
+# ------------------------------------------------------------------------
 
 def fetch_files(user_id):
     try:
@@ -337,6 +703,7 @@ def get_analytics(studentid):
 
 def get_classes_teacher(user_id):
     try:
+        print("DATABASE: getting classes for user: " + str(user_id))
         pool.execute("SELECT * FROM classes WHERE user_id = %s", (user_id,))
 
         return pool.fetchall()

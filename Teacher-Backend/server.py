@@ -6,14 +6,25 @@ from flask_cors import CORS, cross_origin  # For enabling CORS
 import base64  # For encoding/decoding data
 from helper.model import check_model  # For checking model readiness
 from controllers import greet, materials, auth, sections, classes, students, tests,assignment  # Controller functions for routing
-from database import create_db  # For checking database readiness
+from database import create_db,  seed_fake_data, is_database_empty  
 from helper.gcpUpload import check_bucket  # For checking GCP bucket readiness
+from google.cloud import storage
+from google.oauth2 import service_account
+
+def check_bucket_func(bucket_name, service_account_path):
+    credentials = service_account.Credentials.from_service_account_file(
+        service_account_path
+    )
+    client = storage.Client(credentials=credentials)
+    bucket = client.bucket(bucket_name)
+
+    # Example check
+    return bucket.exists()
 
 # Initialize Flask app
 app = Flask(__name__)
 
-# Enable Cross-Origin Resource Sharing (CORS)
-CORS(app)
+CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 
 # -------------------------------
 # Define Routes and Handlers
@@ -27,6 +38,9 @@ app.add_url_rule('/api', 'hello', greet.hello, methods=['GET'])  # Another hello
 
 # Authentication routes
 app.add_url_rule('/auth/google', 'google_a', auth.google_a, methods=['POST'])  # Google auth via POST
+app.add_url_rule("/auth/signup", "signup", auth.signup, methods=["POST"])
+app.add_url_rule("/auth/signin", "signin", auth.signin, methods=["POST"])
+app.add_url_rule('/auth/verify', 'verify', auth.verify, methods=['POST'])
 app.add_url_rule('/api/profile', 'profile_a', auth.profile_a, methods=['GET'])  # Get user profile
 
 # Materials related routes
@@ -80,24 +94,29 @@ app.add_url_rule('/api/getClassMaterials', 'materials_class', materials.material
 # -------------------------------
 
 if __name__ == '__main__':
-    
+
     # 1. Check if the database tables are created
-    result = create_db()  # This will check if the database and tables are created
-    if result != True:
-        logging.error(result)  # Log the error if tables are not created
+    result = create_db()
+    if result is not True:
+        logging.error(result)
         print("SERVER: " + result)
 
-    # 2. Check if the machine learning model is ready
-    result = check_model()  # This checks if the model is loaded and ready
-    if result != True:
-        logging.error(result)  # Log the error if the model is not ready
-        print("SERVER: " + result)
+    # 2. Seed only if DB is empty
+    if result is True:
+        if is_database_empty():
+            seed_fake_data()
 
-    # 3. Check if the Google Cloud Platform (GCP) bucket is ready
-    result = check_bucket()  # This checks if the GCP bucket is configured correctly
-    if result != True:
-        logging.error(result)  # Log the error if the bucket is not ready
-        print("SERVER: " + result)
 
-    # Start the Flask app in debug mode
+    # 3. Check if the machine learning model is ready
+    result = check_model()  
+    if result is not True:
+        logging.error(result)  
+
+    # 4. Check if the Google Cloud Platform (GCP) bucket is ready
+    bucket_exists = check_bucket_func("teacherstudent", "gkey.json")
+    result = bucket_exists
+    if result is not True:
+        logging.error(result) 
+
+    # 5. Start the Flask app in debug mode
     app.run(debug=True)

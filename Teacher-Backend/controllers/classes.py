@@ -41,11 +41,12 @@ def addstudent():
         logging.error(e)
         return jsonify({"error": "An error occurred " + str(e)})
 
-def classes_teacher():
 
+def classes_teacher():
     try:
         user_id = request.args.get('user_id')
-
+        if user_id is None:
+            return jsonify({"error": "user_id is required"}), 400
         classes = get_classes_teacher(user_id)
 
         return jsonify({"classes":classes})
