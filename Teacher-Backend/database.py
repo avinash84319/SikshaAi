@@ -346,6 +346,21 @@ def seed_fake_data():
                         (student_id, student_name, student_email, "student"),
                     )
 
+                    # Insert password
+                    student_password = fake.password(length=10)
+                    print(
+                        "\nFAKE PWDS--------STUDENTS----------------------",
+                        student_password,
+                        "\n",
+                    )
+                    student_hashed = bcrypt.hashpw(
+                        student_password.encode("utf-8"), bcrypt.gensalt()
+                    )
+                    pool.execute(
+                        "INSERT INTO passwords (user_id, password) VALUES (%s, %s)",
+                        (student_id, student_hashed.decode("utf-8")),
+                    )
+
                     # Insert into students table
                     pool.execute(
                         "INSERT INTO students (student_name, class_id) VALUES (%s, %s)",

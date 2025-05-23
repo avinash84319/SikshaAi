@@ -93,31 +93,38 @@ def signup(data):
 
 
 def signin(data):
-    email = data.get("email")
-    password = data.get("password")
-    user_type = data.get("user_type")
+    payload_email = data.get("email")
+    payload_password = data.get("password")
+    payload_user_type = data.get("user_type")
 
-    if not all([email, password, user_type]):
+    if not all([payload_email, payload_password, payload_user_type]):
         return jsonify({"error": "Missing fields"}), 400
     
-    user = get_user_by_email(email)
+    user = get_user_by_email(payload_email)
     if not user:
         return jsonify({"error": "Invalid credentials"}), 401
 
     user_id = user[0]
     name = user[1]
     email = user[2]
+    user_type = user[3]
+    if(user_type != payload_user_type):
+        return jsonify({"error": "Invalid credentials"}), 401
     stored = get_password(user_id)
 
     hashed_password = stored[0]
-    if not bcrypt.checkpw(password=password.encode("utf-8"), hashed_password=hashed_password.encode("utf-8")):
-        return jsonify({"error": "Invalid credentials"}), 401
+    if not bcrypt.checkpw(
+        password=payload_password.encode("utf-8"),
+        hashed_password=hashed_password.encode("utf-8"),
+    ):
+        return jsonify({"error": "Hi, Invalid credentials"}), 401
 
     # Generate JWT token
     payload = {
         "user_id": user_id,
         "email": email,
         "name": name,
+        "user_type": user_type,
         "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=1),
     }
 
@@ -129,6 +136,7 @@ def signin(data):
             "user_id": user_id,
             "name": name,
             "email": email,
+            "user_type": user_type,
         }
     ), 200
 
@@ -145,7 +153,8 @@ def verify(data):
             "valid": True,
             "user_id": decoded["user_id"],
             "name": decoded["name"],
-            "email": decoded["email"]
+            "email": decoded["email"],
+            "user_type": decoded["user_type"],
         }), 200
     except jwt.ExpiredSignatureError:
         return jsonify({"error": "Token expired"}), 401
