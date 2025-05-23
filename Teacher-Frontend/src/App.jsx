@@ -1,136 +1,3 @@
-// import {
-//   BrowserRouter as Router,
-//   Route,
-//   Routes,
-//   Navigate,
-// } from 'react-router-dom'
-
-// import SignIn from './components/Auth/SignIn'
-// import SignUp from './components/Auth/Signup'
-// import Profile from './components/Auth/Profile'
-// import UploadFile from './pages/UploadFile'
-// import PastProjects from './pages/PastProjects'
-// import GenerateSections from './pages/GenerateSections'
-// import SectionDetails from './pages/SectionDetails'
-// import TestEnv from './pages/TestEnv'
-// import Home from './pages/Home'
-
-// import Navbar from './components/builder-components/Navbar'
-// import Sidebar from './components/builder-components/Sidebar'
-// import ClassroomLayout from './pages/ClassRoomLayout'
-// import StudentsPage from './pages/StudentsPage'
-// import Resources from './pages/Resources'
-// import Assignments from './pages/Assignments'
-// import Classes from './pages/Classes'
-// import ClassStudents from './pages/ClassStudents'
-
-// import { useContext } from "react";
-// import AuthContext from "./components/Auth/AuthContext";
-
-// function Layout({ children }) {
-//   return (
-//     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-//       {/* Navbar at the top, spans 100% width */}
-//       <Navbar />
-//       {/* Sidebar and Main Content */}
-//       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-//         <Sidebar style={{ width: '20%', height: '100%' }} />
-//         <div className="flex-1 overflow-auto px-4 py-2 bg-gray-50">
-//           {children}
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
-
-// function App() {
-// 	const { auth } = useContext(AuthContext);
-
-// 	return (
-// 		<Router>
-// 			<Routes>
-// 				{/* Public Routes */}
-// 				<Route path="/" element={<SignIn />} />
-// 				<Route path="/signin" element={<SignIn />} />
-// 				<Route path="/signup" element={<SignUp />} />
-// 				<Route path="/test-env" element={<TestEnv />} />
-
-// 				{/* Protected Routes */}
-// 				<Route
-// 					path="/*"
-// 					element={
-// 						auth ? (
-// 							<Layout>
-// 								<Routes>
-// 									<Route path="/home" element={<Home />} />
-// 									<Route
-// 										path="/profile"
-// 										element={<Profile />}
-// 									/>
-// 									<Route
-// 										path="/past-projects"
-// 										element={<PastProjects />}
-// 									/>
-// 									<Route
-// 										path="/upload-file"
-// 										element={<UploadFile />}
-// 									/>
-// 									<Route
-// 										path="/section-details"
-// 										element={<SectionDetails />}
-// 									/>
-// 									<Route
-// 										path="/generate-sections"
-// 										element={<GenerateSections />}
-// 									/>
-// 									<Route
-// 										path="/classRoom"
-// 										element={<ClassroomLayout />}
-// 									/>
-// 									<Route
-// 										path="/students"
-// 										element={<StudentsPage />}
-// 									/>
-// 									<Route
-// 										path="/resource"
-// 										element={<Resources />}
-// 									/>
-// 									<Route
-// 										path="/assignment"
-// 										element={<Assignments />}
-// 									/>
-// 									<Route
-// 										path="/classes"
-// 										element={<Classes />}
-// 									/>
-// 									<Route
-// 										path="/classStudents/:classId"
-// 										element={<ClassStudents />}
-// 									/>
-// 								</Routes>
-// 							</Layout>
-// 						) : (
-// 							<Navigate to="/signin" />
-// 						)
-// 					}
-// 				/>
-
-// 				{/* Fallback Not Found Route - No Layout */}
-// 				<Route
-// 					path="*"
-// 					element={
-// 						<h1 className="text-center mt-10 text-2xl">
-// 							404 - Page Not Found
-// 						</h1>
-// 					}
-// 				/>
-// 			</Routes>
-// 		</Router>
-// 	);
-// }
-// export default App
-import React from "react";
 import {
 	BrowserRouter as Router,
 	Route,
@@ -138,6 +5,7 @@ import {
 	Navigate,
 } from "react-router-dom";
 
+import { useAuth } from "./components/Auth/AuthContext";
 import SignIn from "./components/Auth/SignIn";
 import SignUp from "./components/Auth/Signup";
 import Profile from "./components/Auth/Profile";
@@ -187,7 +55,191 @@ function Layout({ children }) {
 	);
 }
 
+// function App() {
+// 	const { auth } = useAuth();
+
+// 	// Show loading or nothing until auth is known
+// 	if (!auth) {
+// 		return <div className="text-center mt-20 text-xl">Loading...</div>;
+// 		// return <SignIn />
+// 		return
+// 	}
+
+// 	const userType = auth.user_type;
+
+// 	return (
+// 		<Router>
+// 			<Routes>
+// 				{/* Public Routes */}
+// 				<Route path="/" element={<SignIn />} />
+// 				<Route path="/signin" element={<SignIn />} />
+// 				<Route path="/signup" element={<SignUp />} />
+// 				<Route path="/test-env" element={<TestEnv />} />
+
+// 				{/* Protected Routes Based on Role */}
+// 				{userType === "teacher" ? (
+// 					<>
+// 						<Route
+// 							path="/home"
+// 							element={
+// 								<Layout>
+// 									<Home />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/profile"
+// 							element={
+// 								<Layout>
+// 									<Profile />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/past-projects"
+// 							element={
+// 								<Layout>
+// 									<PastProjects />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/upload-file"
+// 							element={
+// 								<Layout>
+// 									<UploadFile />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/section-details"
+// 							element={
+// 								<Layout>
+// 									<SectionDetails />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/generate-sections"
+// 							element={
+// 								<Layout>
+// 									<GenerateSections />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/classRoom"
+// 							element={
+// 								<Layout>
+// 									<ClassroomLayout />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/students"
+// 							element={
+// 								<Layout>
+// 									<StudentsPage />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/resource"
+// 							element={
+// 								<Layout>
+// 									<Resources />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/assignment"
+// 							element={
+// 								<Layout>
+// 									<Assignments />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/classes"
+// 							element={
+// 								<Layout>
+// 									<Classes />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/classStudents/:classId"
+// 							element={
+// 								<Layout>
+// 									<ClassStudents />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/doubts"
+// 							element={
+// 								<Layout>
+// 									<Doubts />
+// 								</Layout>
+// 							}
+// 						/>
+// 					</>
+// 				) : userType === "student" ? (
+// 					<>
+// 						<Route
+// 							path="/home"
+// 							element={
+// 								<Layout>
+// 									<Home />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/profile"
+// 							element={
+// 								<Layout>
+// 									<Profile />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/resource"
+// 							element={
+// 								<Layout>
+// 									<Resources />
+// 								</Layout>
+// 							}
+// 						/>
+// 						<Route
+// 							path="/assignment"
+// 							element={
+// 								<Layout>
+// 									<Assignments />
+// 								</Layout>
+// 							}
+// 						/>
+// 						{/* If you have a practice tests page */}
+// 						<Route
+// 							path="/practice-tests"
+// 							element={
+// 								<Layout>
+// 									<TestEnv />
+// 								</Layout>
+// 							}
+// 						/>
+// 					</>
+// 				) : null}
+
+// 				{/* 404 for everything else */}
+// 				<Route path="*" element={<NotFound />} />
+// 			</Routes>
+// 		</Router>
+// 	);
+// }
+
 function App() {
+	const { auth } = useAuth();
+
 	return (
 		<Router>
 			<Routes>
@@ -197,113 +249,44 @@ function App() {
 				<Route path="/signup" element={<SignUp />} />
 				<Route path="/test-env" element={<TestEnv />} />
 
-				{/* Protected Routes */}
-				<Route
-					path="/home"
-					element={
-						<Layout>
-							<Home />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/profile"
-					element={
-						<Layout>
-							<Profile />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/past-projects"
-					element={
-						<Layout>
-							<PastProjects />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/upload-file"
-					element={
-						<Layout>
-							<UploadFile />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/section-details"
-					element={
-						<Layout>
-							<SectionDetails />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/generate-sections"
-					element={
-						<Layout>
-							<GenerateSections />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/classRoom"
-					element={
-						<Layout>
-							<ClassroomLayout />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/students"
-					element={
-						<Layout>
-							<StudentsPage />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/resource"
-					element={
-						<Layout>
-							<Resources />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/assignment"
-					element={
-						<Layout>
-							<Assignments />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/classes"
-					element={
-						<Layout>
-							<Classes />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/classStudents/:classId"
-					element={
-						<Layout>
-							<ClassStudents />
-						</Layout>
-					}
-				/>
-				<Route
-					path="/doubts"
-					element={
-						<Layout>
-							<Doubts />
-						</Layout>
-					}
-				/>
+				{/* Loading fallback */}
+				{auth === undefined && (<Route path="*" element=
+						{<div className="text-center mt-20 text-xl">Loading...</div>}
+					/>
+				)}
 
-				{/* 404 Route - No Layout */}
+				{/* Not Authenticated: redirect to signin */}
+				{auth === false && (<Route path="*" element={<Navigate to="/signin" replace />} />)}
+
+				{/* Authenticated User */}
+				{auth && auth.user_type === "teacher" && (
+					<>
+						<Route path="/home" element={<Layout><Home /></Layout>}/>
+						<Route path="/profile" element={ <Layout> <Profile /> </Layout> }/>
+						<Route path="/upload-file" element={ <Layout> <UploadFile /> </Layout> } />
+						<Route path="/past-projects" element={ <Layout> <PastProjects /> </Layout> } />
+						<Route path="/generate-sections" element={ <Layout> <GenerateSections /> </Layout> } />
+						<Route path="/section-details" element={ <Layout> <SectionDetails /> </Layout> } />
+						<Route path="/classRoom" element={ <Layout> <ClassroomLayout /> </Layout> } />
+						<Route path="/students" element={ <Layout> <StudentsPage /> </Layout> } />
+						<Route path="/resource" element={ <Layout> <Resources /> </Layout> } />
+						<Route path="/assignment" element={ <Layout> <Assignments /> </Layout> } />
+						<Route path="/classes" element={ <Layout> <Classes /> </Layout> } />
+						<Route path="/classStudents/:classId" element={ <Layout> <ClassStudents /> </Layout> } />
+						<Route path="/doubts" element={ <Layout> <Doubts /> </Layout> } />
+					</>
+				)}
+
+				{auth && auth.user_type === "student" && (
+					<>
+						<Route path="/resources" element={ <Layout> <Resources /> </Layout> } />
+						<Route path="/assignments" element={ <Layout> <Assignments /> </Layout> } />
+						<Route path="/home" element={ <Layout> <Home /> </Layout> } />
+						{/* Add practice test routes or others here */}
+					</>
+				)}
+
+				{/* 404 Fallback */}
 				<Route path="*" element={<NotFound />} />
 			</Routes>
 		</Router>

@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../Auth/AuthContext";
 
-const menuItems = [
+const teacherItems = [
 	{
 		icon: "/selected-icon-sidebar/classroom.svg",
 		label: "Classrooms",
@@ -32,10 +33,31 @@ const menuItems = [
 		route: "/doubts",
 	},
 ];
+const studentItems = [
+	{
+		icon: "/selected-icon-sidebar/resource.svg",
+		label: "Resources",
+		route: "/resources",
+	},
+	{
+		icon: "/selected-icon-sidebar/assignment.svg",
+		label: "Assignments",
+		route: "/assignments",
+	},
+	{
+		icon: "/selected-icon-sidebar/create_test.svg",
+		label: "Practice Tests",
+		route: "/practice-tests",
+	},
+];
 
 function Sidebar() {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const { auth } = useAuth();
+	const userType = auth?.user_type;
+	console.log("USER-side---------",auth, userType)
+	const menuItems = userType === "teacher" ? teacherItems : studentItems;
 
 	const handleNavigation = (route) => {
 		navigate(route);

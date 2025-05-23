@@ -44,8 +44,10 @@
 
 // export default Navbar
 import React, { useState, useRef, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
 function Navbar() {
+	const navigate=useNavigate()
+	
 	const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [isDropdownOpen, setDropdownOpen] = useState(false);
 	const dropdownRef = useRef();
@@ -55,12 +57,15 @@ function Navbar() {
 
 	const handleLogout = () => {
 		console.log("Logout clicked");
-		// Add logout logic here
+		localStorage.removeItem("accessToken");
+		localStorage.removeItem("user_id");
+		navigate("/signin");
 	};
 
 	const handleProfile = () => {
 		console.log("Profile clicked");
 		// Navigate to profile
+		navigate("/profile")
 	};
 
 	// Close dropdown when clicking outside

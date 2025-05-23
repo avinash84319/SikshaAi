@@ -43,6 +43,7 @@ export default function SignIn() {
 				.catch(() => {
 					localStorage.removeItem("accessToken");
 					localStorage.removeItem("user_id");
+					console.log("NO TOKEN")
 				});
 		}
 	}, []);
@@ -69,6 +70,7 @@ export default function SignIn() {
 				user_id,
 				name,
 				email: userEmail,
+				user_type
 			} = response?.data;
 
 			// ✅ Set session token
@@ -80,7 +82,7 @@ export default function SignIn() {
 
 
 			// ✅ Update auth context
-			setAuth({ user_id, name, email: userEmail, accessToken });
+			setAuth({ user_id, name, email: userEmail, accessToken, user_type });
 
 			// Clear form
 			setEmail("");

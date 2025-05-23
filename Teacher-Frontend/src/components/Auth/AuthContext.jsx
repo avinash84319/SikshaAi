@@ -1,17 +1,4 @@
-// import { createContext, useState } from 'react'
-
-// const AuthContext = createContext({})
-// export const AuthProvider = ({ children }) => {
-//   const [auth, setAuth] = useState({})
-//   return (
-//     <AuthContext.Provider value={{ auth, setAuth }}>
-//       {children}
-//     </AuthContext.Provider>
-//   )
-// }
-// export default AuthContext  
-// -----------------------------------------------------------------------
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 
 const AuthContext = createContext({});
@@ -25,6 +12,7 @@ export const AuthProvider = ({ children }) => {
 			const token = localStorage.getItem("accessToken");
 			if (!token) {
 				setLoading(false);
+				setAuth(false);
 				return;
 			}
 
@@ -40,12 +28,17 @@ export const AuthProvider = ({ children }) => {
 						name: response.data.name,
 						email: response.data.email,
 						accessToken: token,
+						user_type: response.data.user_type
 					});
+				} else {
+					setAuth(false)
 				}
+				console.log("AUTH---",auth)
 			} catch (err) {
 				console.error("Token verification failed", err);
 				localStorage.removeItem("accessToken");
 				localStorage.removeItem("user_id");
+				setAuth(false);
 			} finally {
 				setLoading(false);
 			}
@@ -66,3 +59,4 @@ export const AuthProvider = ({ children }) => {
 };
 
 export default AuthContext;
+export const useAuth = () => useContext(AuthContext);
